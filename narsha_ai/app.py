@@ -1,10 +1,6 @@
 from flask import Flask
-from flask import request, jsonify
-from flask_cors import CORS
-from flask_restx import Resource, Api
-
-import openai
-import os
+# from flask_cors import CORS
+from flask_restx import Api
 
 from narsha_ai.chatGPT import ChatGPT
 
@@ -13,7 +9,7 @@ api = Api(app)
 
 api.add_namespace(ChatGPT, '/api')
 
-CORS(app)
+# CORS(app)
 
 
 if __name__ == '__main__':

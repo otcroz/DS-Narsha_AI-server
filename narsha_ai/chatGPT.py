@@ -6,7 +6,6 @@ import os
 
 ChatGPT = Namespace('ChatGPT')
 
-# API_KEY2 = os.getenv("FLASK_API_KEY")
 API_KEY = os.getenv("FLASK_API_KEY")
 openai.api_key =API_KEY
 
