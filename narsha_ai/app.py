@@ -4,10 +4,9 @@ from flask_restx import Resource, Api
 import boto3
 from dotenv import load_dotenv, find_dotenv
 import os
+# from flask_cors import CORS
 
-
-
-
+from narsha_ai.chatGPT import ChatGPT
 
 
 ## flask server ##
@@ -17,9 +16,7 @@ api = Api(app, version='0.0.1')
 # env #
 load_dotenv(find_dotenv())
 
-@app.route('/')
-def index():
-    return "hello world!"
+api.add_namespace(ChatGPT, '/api')
 
 
 @api.route('/rekognition/detect-label')
@@ -47,3 +44,4 @@ if __name__ == '__main__' :
     print(os.environ["ACCESS-KEY"])
     app.run(host='127.0.0.1', port=8000)
 
+# CORS(app)
