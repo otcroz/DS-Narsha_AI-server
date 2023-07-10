@@ -6,18 +6,16 @@ from dotenv import load_dotenv, find_dotenv
 import os
 # from flask_cors import CORS
 
+## flask server ##
 from narsha_ai.chatGPT import ChatGPT
 
-
-## flask server ##
 app = Flask(__name__)
 api = Api(app, version='0.0.1')
 
 # env #
 load_dotenv(find_dotenv())
 
-api.add_namespace(ChatGPT, '/api')
-
+api.add_namespace(ChatGPT, '/chat')
 
 @api.route('/rekognition/detect-label')
 class ObjectDetectionResource(Resource):

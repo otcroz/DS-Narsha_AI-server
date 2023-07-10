@@ -6,19 +6,16 @@ import os
 
 ChatGPT = Namespace('ChatGPT')
 
-API_KEY = os.getenv("FLASK_API_KEY")
-openai.api_key =API_KEY
-
 @ChatGPT.route('/text')
 class CommentMaker(Resource):
-    def post(API_KEY=API_KEY):
+    def post(self):
         input = request.get_json()
 
         # request body 값
         post_content = input["post_content"]
 
         # set api key
-        # openai.api_key =API_KEY
+        openai.api_key = os.environ["FLASK_API_KEY"]
 
         # Call the chat GPT API
         completion = openai.ChatCompletion.create(
