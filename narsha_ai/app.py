@@ -7,6 +7,9 @@ import os
 ## flask server ##
 from aws import AWS
 from chatGPT import ChatGPT
+from teacher_content import TeacherContent
+from teacher_image import TeacherImage
+from teacher_image_content import TeacherImageContent
 
 app = Flask(__name__)
 api = Api(app, version='0.0.1')
@@ -15,6 +18,9 @@ api = Api(app, version='0.0.1')
 load_dotenv(find_dotenv())
 
 api.add_namespace(ChatGPT, '/chat')
+api.add_namespace(TeacherContent, '/chat')
+api.add_namespace(TeacherImage, '/chat')
+api.add_namespace(TeacherImageContent, '/chat')
 api.add_namespace(AWS, '/rekognition')
 
 
