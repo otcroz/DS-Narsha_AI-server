@@ -25,15 +25,15 @@ class CommentMaker(Resource):
             messages=[
                 {"role": "system", "content": "조건에 맞게 문자를 SNS 댓글처럼 작성하라."},
                 {"role": "system", "content": "역할은 작성하지 않는다."},
-                {"role": "system", "content": "말투는 다음과 같다. 반말로 작성하라. 짜증나고 비난스럽게 말투로 만들어라."},
-                {"role": "system", "content": "댓글을 까칠한 학생이 작성한 것처럼 만들어라."}, # 반말로 작성한다.
-                {"role": "system", "content": "대화 상황은 다음과 같다. 학생의 SNS 게시글 사진을 보고 댓글을 달아주고 있다. 나는 까칠한 성격을 가진 반 친구 학생이다."},
+                {"role": "system", "content": "말투는 다음과 같다. 반말로 작성하라. 짜증나고 비난스럽게 말투로 만들어라."},  # 반말로 작성한다.
+                {"role": "system", "content": "상황은 다음과 같다. 학생의 SNS 게시글을 읽고 댓글을 달아주고 있다. 너는 까칠한 성격을 가진 반 친구 학생이다."},
+                {"role": "system", "content": "까칠한 성격에 맞게 댓글을 만들어라."},
                 {"role": "system", "content": "상황은 작성하지 않는다."},
                 {"role": "system", "content": "댓글임을 작성하지 않는다."},
-                {"role": "system", "content": "문자는 두 문장 이내로 작성한다. 게시글 사진 키워드와 관련있는 내용으로 작성한다. "},
-                {"role": "user", "content": f"1. 게시글 사진 키워드: ${post_image}"},
+                {"role": "user", "content": f" 게시글 내용: ${post_image}"},
+                {"role": "system", "content": "답변은 무조건 한 문장으로 만든다. 문장을 구분하는 기호는 작성하지 않는다."},
             ],
-            temperature=0.3,
+            temperature=0.8,
             max_tokens=2048
         )
 
