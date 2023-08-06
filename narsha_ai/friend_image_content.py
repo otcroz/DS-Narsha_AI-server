@@ -4,9 +4,9 @@ from flask_restx import Resource, Api, Namespace
 import openai
 import os
 
-FriendContent = Namespace('FriendContent')
+FriendImageContent = Namespace('FriendImageContent')
 
-@FriendContent.route('/friend/content')
+@FriendImageContent.route('/friend/image-content')
 class CommentMaker(Resource):
     def post(self):
         input = request.get_json()
@@ -25,6 +25,9 @@ class CommentMaker(Resource):
                 {"role": "system", "content": "문자는 두 문장 이내로 작성한다. 게시글 내용과 관련있는 내용으로 작성한다."},
                 {"role": "system", "content": "너는 9살이다. 9살 동갑 친구에게 말하는 것처럼 답한다."},
                 {"role": "system", "content": "너는 반말을 한다."},
+                # {"role": "system", "content": "밝고 친절하고, 긍정적으로 말한다."},
+                # {"role": "system", "content": "주어진 단어들을 연결하여 하나의 이야기에 대한 내용으로 작성한다."},
+                {"role": "system", "content": "의문을 품지 않는다."},
                 {"role": "system", "content": "상황은 작성하지 않는다."},
                 {"role": "system", "content": "댓글임을 작성하지 않는다."},
                 {"role": "user", "content": f"1. 게시글 내용: ${post_content}"},

@@ -18,9 +18,11 @@ from disgust_image import DisgustImage
 from disgust_image_content import DisgustImageContent
 from friend_content import FriendContent
 from friend_image import FriendImage
+from friend_image_content import FriendImageContent
 from senior_content import SeniorContent
 from senior_image import SeniorImage
 from image_masking import ImageMasking
+from senior_image_content import SeniorImageContent
 
 
 
@@ -39,8 +41,10 @@ api.add_namespace(TeacherImage, '/chat')
 api.add_namespace(TeacherImageContent, '/chat')
 api.add_namespace(FriendContent, '/chat')
 api.add_namespace(FriendImage, '/chat')
+api.add_namespace(FriendImageContent, "/chat")
 api.add_namespace(SeniorContent, '/chat')
 api.add_namespace(SeniorImage, '/chat')
+api.add_namespace(SeniorImageContent, "/chat")
 api.add_namespace(DisgustContent, '/chat')
 api.add_namespace(DisgustImage, "/chat")
 api.add_namespace(DisgustImageContent, "/chat")
