@@ -1,7 +1,9 @@
 from flask import Flask, jsonify
 from flask_restx import Resource, Api
 from dotenv import load_dotenv, find_dotenv
-import os
+
+## load yolov5 ##
+from image_masking import yolov5_model
 
 # from flask_cors import CORS
 
@@ -18,10 +20,14 @@ from friend_content import FriendContent
 from friend_image import FriendImage
 from senior_content import SeniorContent
 from senior_image import SeniorImage
+from image_masking import ImageMasking
+
 
 
 app = Flask(__name__)
 api = Api(app, version='0.0.1')
+
+
 
 # env #
 load_dotenv(find_dotenv())
@@ -38,10 +44,15 @@ api.add_namespace(SeniorImage, '/chat')
 api.add_namespace(DisgustContent, '/chat')
 api.add_namespace(DisgustImage, "/chat")
 api.add_namespace(DisgustImageContent, "/chat")
+api.add_namespace(ImageMasking, "/image")
+
 
 
 if __name__ == '__main__' :
-    print(os.environ["ACCESS-KEY"])
+    #print(os.environ["ACCESS-KEY"])
+
+    yolov5_model() # load yolov5m model
+
     app.run(host='127.0.0.1', port=8000)
 
 # CORS(app)
