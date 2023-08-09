@@ -23,7 +23,7 @@ def yolov5_model():
     opt = parser.parse_args()
 
     for m in opt.model:
-        models[m] = torch.hub.load('ultralytics/yolov5', 'custom', path='models/best.pt', force_reload=True, skip_validation=True)
+        models[m] = torch.hub.load('ultralytics/yolov5', 'custom', path='models/last.pt', force_reload=True, skip_validation=True)
 
 
 @ImageMasking.route('/object-detect/<model>')
