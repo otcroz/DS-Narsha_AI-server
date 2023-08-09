@@ -11,7 +11,7 @@ import os
 ImageMasking = Namespace('ImageMasking')
 models = {} # yolov5 models
 convert_image_arr = [] # binary to image
-detect_results_arr = [] # results
+detect_results_arr = {'result': [], 'size': []} # results
 
 
 # setting
@@ -42,11 +42,13 @@ class ObjectDetect(Resource):
 
             # image masking(to be added)
             # masking_image()
-            print("1: ",detect_results_arr)
+
             return_arr = detect_results_arr.copy()
-            print("2: ",return_arr)
+
+            # setting
             detect_results_arr.clear()
-            print("3: ",return_arr)
+            detect_results_arr['result'] = []
+            detect_results_arr['size'] = []
 
             return return_arr
 
@@ -66,7 +68,8 @@ def detect_object_yolo(model, images):
             results.print()
             result = results.pandas().xyxy[0].to_json(orient='records')
 
-            detect_results_arr.append(result) # add result in list
+            detect_results_arr['result'].append(result) # add result in list
+            detect_results_arr['size'].append(im.size)  # add result in size
 
 def masking_image():
     print(masking_image)
