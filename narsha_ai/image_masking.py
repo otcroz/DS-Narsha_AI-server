@@ -25,16 +25,20 @@ def yolov5_model():
     for m in opt.model:
         models[m] = torch.hub.load('ultralytics/yolov5', 'custom', path='models/last.pt', force_reload=True, skip_validation=True)
 
+        print(models)
+
 
 @ImageMasking.route('/object-detect/<model>')
 class ObjectDetect(Resource):
     def post(self, model):
+        print(model)
         if request.json.get('images'):
             binary_images = request.json['images'][0]
+            # print(binary_images)
             file_binary = binary_images.split(',')
             # convert binary to image
             for i in range(len(file_binary)):
-                print("file_binary", len(file_binary))
+                # print("hihi"+"file_binary", len(file_binary))
                 convert_image_arr.append(base64.b64decode(file_binary[i]))
 
             detect_object_yolo(model, convert_image_arr) # detect object
@@ -50,6 +54,8 @@ class ObjectDetect(Resource):
             detect_results_arr['result'] = []
             detect_results_arr['size'] = []
 
+            print(return_arr)
+
             return return_arr
 
         else: return "null, images not translate."
@@ -63,7 +69,9 @@ def detect_object_yolo(model, images):
         #im_bytes = im_file.read()
         im = Image.open(io.BytesIO(image))
 
+        print(model in models)
         if model in models:
+            print("gigigigi")
             results = models[model](im, size=640)
             results.print()
             result = results.pandas().xyxy[0].to_json(orient='records')
