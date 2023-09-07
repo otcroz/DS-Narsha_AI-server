@@ -1,6 +1,12 @@
+## venv ##
 /venv
+/venv_py39
 
 .idea
 /.idea
 
+## env ##
 .env
+
+## lime result html ##
+/res

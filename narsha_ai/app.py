@@ -5,7 +5,12 @@ from dotenv import load_dotenv, find_dotenv
 ## load yolov5 ##
 from image_masking import yolov5_model
 
+## load bert model ##
+from text_labeling import kobert_text
 # from flask_cors import CORS
+
+## lime ##
+from text_labeling import lime
 
 ## flask server ##
 from aws import AWS
@@ -53,8 +58,17 @@ api.add_namespace(ImageMasking, "/image")
 
 
 if __name__ == '__main__' :
-    yolov5_model() # load yolov5m model
+
+
+    # load yolov5m model
+    yolov5_model()
+
+    # load bert model
+
+    # test
+    lime.lime_exp()
 
     app.run(host='127.0.0.1', port=8000)
+
 
 # CORS(app)
