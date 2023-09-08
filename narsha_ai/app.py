@@ -5,7 +5,12 @@ from dotenv import load_dotenv, find_dotenv
 ## load yolov5 ##
 from image_masking import yolov5_model
 
+## load bert model ##
+from text_labeling import kobert_text
 # from flask_cors import CORS
+
+## lime ##
+from text_labeling import lime
 
 ## flask server ##
 from aws import AWS
@@ -23,6 +28,8 @@ from senior_content import SeniorContent
 from senior_image import SeniorImage
 from image_masking import ImageMasking
 from senior_image_content import SeniorImageContent
+from text_labeling import lime
+
 
 
 
@@ -49,14 +56,20 @@ api.add_namespace(DisgustContent, '/chat')
 api.add_namespace(DisgustImage, "/chat")
 api.add_namespace(DisgustImageContent, "/chat")
 api.add_namespace(ImageMasking, "/image")
-
+api.add_namespace(lime.TextFiltering, "/lime")
 
 
 if __name__ == '__main__' :
-    #print(os.environ["ACCESS-KEY"])
-
-    yolov5_model() # load yolov5m model
 
     app.run(host='127.0.0.1', port=8000)
+
+    # load yolov5m model
+    yolov5_model()
+
+    # test
+    lime.lime_exp()
+
+
+
 
 # CORS(app)
