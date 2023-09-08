@@ -43,8 +43,13 @@ def lime_exp():
 
     exp = explainer.explain_instance(input_data, predict, num_samples=64, top_labels=1)
 
+    # save to lime result
     exp.save_to_file('./res/data.html')
-    print("available_labels: ", exp.available_labels())
-    print("as_list", exp.as_list(label=1))
 
-    print(len(exp.available_labels()))
+    print("available_labels: ", exp.available_labels())
+
+    # filtering curse
+    curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
+
+    print(curse_arr)
+    # print("as_list", exp.as_list(label=1))
