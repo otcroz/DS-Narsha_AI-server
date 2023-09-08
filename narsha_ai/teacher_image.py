@@ -37,4 +37,6 @@ class CommentMaker(Resource):
 
         message_result = completion["choices"][0]["message"]["content"].encode("utf-8").decode()
 
+        print(message_result)
+
         return jsonify({"result": message_result})
