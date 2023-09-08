@@ -28,6 +28,8 @@ from senior_content import SeniorContent
 from senior_image import SeniorImage
 from image_masking import ImageMasking
 from senior_image_content import SeniorImageContent
+from text_labeling import lime
+
 
 
 
@@ -54,21 +56,20 @@ api.add_namespace(DisgustContent, '/chat')
 api.add_namespace(DisgustImage, "/chat")
 api.add_namespace(DisgustImageContent, "/chat")
 api.add_namespace(ImageMasking, "/image")
-
+api.add_namespace(lime.TextFiltering, "/lime")
 
 
 if __name__ == '__main__' :
 
+    app.run(host='127.0.0.1', port=8000)
 
     # load yolov5m model
     yolov5_model()
 
-    # load bert model
-
     # test
     lime.lime_exp()
 
-    app.run(host='127.0.0.1', port=8000)
+
 
 
 # CORS(app)

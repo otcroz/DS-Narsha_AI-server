@@ -7,10 +7,22 @@ from text_labeling import kobert_text
 import gluonnlp as nlp
 from tqdm import tqdm, tqdm_notebook
 from kobert_tokenizer import KoBERTTokenizer
+from flask import request, jsonify
+from flask_restx import Resource, Api, Namespace
 
 max_len = 64
 batch_size = 64
 
+TextFiltering = Namespace('TextFiltering')
+
+
+@TextFiltering.route('/curse-filter')
+class LimeTextFiltering(Resource):
+    def post(self):
+        input = request.get_json()
+        res = lime_exp(input['input'])
+
+        return res
 
 def predict(text):
     input_another = []
@@ -37,9 +49,8 @@ def predict(text):
         return probas
 
 
-def lime_exp():
+def lime_exp(input_data):
     explainer = LimeTextExplainer(class_names=['positive', 'negative'])
-    input_data = '미친 오류 해결했어 말도 안 돼'
 
     exp = explainer.explain_instance(input_data, predict, num_samples=64, top_labels=1)
 
@@ -51,5 +62,8 @@ def lime_exp():
     # filtering curse
     curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
 
-    print(curse_arr)
+    # check
     # print("as_list", exp.as_list(label=1))
+    print(curse_arr)
+
+    return curse_arr
