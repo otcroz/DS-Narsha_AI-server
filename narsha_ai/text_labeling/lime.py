@@ -9,6 +9,7 @@ from tqdm import tqdm, tqdm_notebook
 from kobert_tokenizer import KoBERTTokenizer
 from flask import request, jsonify
 from flask_restx import Resource, Api, Namespace
+import re
 
 max_len = 64
 batch_size = 64
@@ -20,6 +21,9 @@ TextFiltering = Namespace('TextFiltering')
 class LimeTextFiltering(Resource):
     def post(self):
         input = request.get_json()
+
+        input['input'] = re.sub(r'[^ㄱ-ㅎㅏ-ㅣ가-힣 ]', "", input['input'])
+
         res = lime_exp(input['input'])
 
         return res
