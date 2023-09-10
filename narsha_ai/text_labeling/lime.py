@@ -61,13 +61,13 @@ def lime_exp(input_data):
     # save to lime result
     exp.save_to_file('./res/data.html')
 
-    print("available_labels: ", exp.available_labels())
+    print("available_labels: ", exp.available_labels()[0])
 
     # filtering curse
-    curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
+    if exp.available_labels()[0] == 0:  # contain curse is not
+        return True
+    else:  # contain curse
+        curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
+        print(curse_arr)
 
-    # check
-    # print("as_list", exp.as_list(label=1))
-    print(curse_arr)
-
-    return curse_arr
+        return curse_arr

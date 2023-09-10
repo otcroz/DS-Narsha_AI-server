@@ -61,14 +61,10 @@ api.add_namespace(lime.TextFiltering, "/lime")
 
 if __name__ == '__main__' :
 
-    app.run(host='127.0.0.1', port=8000)
-
     # load yolov5m model
     yolov5_model()
 
-    # test
-    lime.lime_exp()
-
+    app.run(host='127.0.0.1', port=8000)
 
 
 
