@@ -13,3 +13,6 @@
 
 ## model ##
 /models
+
+## cache
+/__pycache__
