@@ -3,7 +3,6 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-from text_labeling import kobert_text
 import gluonnlp as nlp
 from tqdm import tqdm, tqdm_notebook
 from kobert_tokenizer import KoBERTTokenizer
@@ -11,9 +10,14 @@ from flask import request, jsonify
 from flask_restx import Resource, Api, Namespace
 import re
 
+## file ##
+from text_labeling import kobert_text
+from text_labeling import replace_word
+
 max_len = 64
 batch_size = 64
 text_count = 0
+res_arr = {}
 
 TextFiltering = Namespace('TextFiltering')
 
@@ -96,6 +100,7 @@ def predict(text):
 
 def lime_exp(input_data):
     global text_count
+    global res_arr
 
     explainer = LimeTextExplainer(class_names=['positive', 'negative'])
 
@@ -104,13 +109,16 @@ def lime_exp(input_data):
     # save to lime result
     # exp.save_to_file('./res/data.html')
 
-    print("available_labels: ", exp.available_labels()[0])
+    # print("available_labels: ", exp.available_labels()[0])
 
     # filtering curse
     if exp.available_labels()[0] == 0:  # contain curse is not
         return True
     else:  # contain curse
         curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
-        print(curse_arr)
 
-        return curse_arr
+        # curse replace
+        res = replace_word.replace(curse_arr)
+        print(res)
+
+        return res
