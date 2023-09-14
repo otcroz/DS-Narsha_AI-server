@@ -13,6 +13,7 @@ import re
 
 max_len = 64
 batch_size = 64
+text_count = 0
 
 TextFiltering = Namespace('TextFiltering')
 
@@ -20,46 +21,88 @@ TextFiltering = Namespace('TextFiltering')
 @TextFiltering.route('/curse-filter')
 class LimeTextFiltering(Resource):
     def post(self):
+        global text_count
+
         input = request.get_json()
 
-        input['input'] = re.sub(r'[^ㄱ-ㅎㅏ-ㅣ가-힣 ]', "", input['input'])
+        # preprocessing input
+        preprocess = re.sub(r'[^ㄱ-ㅎㅏ-ㅣ가-힣 ]', "", input['input'])
 
-        res = lime_exp(input['input'])
+        # set text count
+        text_count = cal_lime_text_count(preprocess)
+
+        # lime
+        res = lime_exp(preprocess)
 
         return res
 
+
+def combi(n, r):
+    i = 1
+    p = 1
+    while i <= r:
+        p = p * (n - i + 1) // i
+        i += 1
+    return p
+
+
+def cal_lime_text_count(text):
+    text_arr = text.split()
+    # print(text_arr)
+    count = 1
+
+    for i in range(0, len(text_arr)):
+        count += combi(len(text_arr), i)
+
+    count += count
+
+    if count < 64:
+        count = 64
+    elif count > 1000:
+        count = 1000
+
+    # print(count)
+
+    return count
+
+
 def predict(text):
+    global text_count
+
     input_another = []
     for i in range(0, len(text)):
         input_another.append([text[i], '0'])
     print(input_another)
+    print(len(input_another))
 
     tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
     vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
 
     another_test = kobert_text.BERTDataset(input_another, 0, 1, tokenizer, vocab, max_len, True, False)
-    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=batch_size, num_workers=4)
+    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=64, num_workers=4)
 
     test_model = kobert_text.load_pretrain_bert()
 
     for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
         out = test_model(token_ids.long(), valid_length, segment_ids.long())
         tensor_logits = out
-        #print('tensor_logits: ', tensor_logits)
+        # print('tensor_logits: ', tensor_logits)
         probas = F.sigmoid(tensor_logits).detach().numpy()  # tensor to numpy
-        #print('probas: ', probas)
-        #print('probas: ', probas.shape)
+        # print('probas: ', probas)
+        # print('probas: ', probas.shape)
 
         return probas
 
 
 def lime_exp(input_data):
+    global text_count
+
     explainer = LimeTextExplainer(class_names=['positive', 'negative'])
 
     exp = explainer.explain_instance(input_data, predict, num_samples=64, top_labels=1)
 
     # save to lime result
-    exp.save_to_file('./res/data.html')
+    # exp.save_to_file('./res/data.html')
 
     print("available_labels: ", exp.available_labels()[0])
 
