@@ -33,6 +33,7 @@ class CommentMaker(Resource):
                 {"role": "system", "content": "댓글을 만들 때 댓글임을 작성하지 않는다."},
                 {"role": "user", "content": f" 게시글 내용: ${post_content}, ${post_image}"},
                 {"role": "system", "content": "답변은 무조건 한 문장으로 만든다. 문장을 구분하는 기호는 작성하지 않는다."},
+                {"role": "system", "content": "만들어진 결과에 무조건 한국어만 남게 해줘."},
             ],
             temperature=0.8,
             max_tokens=2048
