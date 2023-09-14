@@ -23,7 +23,7 @@ def yolov5_model():
     opt = parser.parse_args()
 
     for m in opt.model:
-        models[m] = torch.hub.load('ultralytics/yolov5', 'custom', path='models/last.pt', force_reload=True, skip_validation=True)
+        models[m] = torch.hub.load('ultralytics/yolov5', 'custom', path='./models/last.pt', force_reload=True, skip_validation=True)
 
 
 @ImageMasking.route('/object-detect/<model>')
@@ -63,7 +63,7 @@ def detect_object_yolo(model, images):
         #im_bytes = im_file.read()
         im = Image.open(io.BytesIO(image))
 
-        if model in models:
+        if 'model' in models:
             results = models[model](im, size=640)
             results.print()
             result = results.pandas().xyxy[0].to_json(orient='records')

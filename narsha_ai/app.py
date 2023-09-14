@@ -10,6 +10,7 @@ from image_masking import yolov5_model
 ## flask server ##
 from aws import AWS
 from chatGPT import ChatGPT
+# from masking import Masking
 from teacher_content import TeacherContent
 from teacher_image import TeacherImage
 from teacher_image_content import TeacherImageContent
@@ -30,7 +31,6 @@ app = Flask(__name__)
 api = Api(app, version='0.0.1')
 
 
-
 # env #
 load_dotenv(find_dotenv())
 
@@ -49,7 +49,7 @@ api.add_namespace(DisgustContent, '/chat')
 api.add_namespace(DisgustImage, "/chat")
 api.add_namespace(DisgustImageContent, "/chat")
 api.add_namespace(ImageMasking, "/image")
-
+# api.add_namespace(Masking, "/image")
 
 
 if __name__ == '__main__' :
