@@ -27,9 +27,15 @@ class CommentMaker(Resource):
                 {"role": "system", "content": "너는 반말을 한다."},
                 {"role": "system", "content": "상황은 작성하지 않는다."},
                 {"role": "system", "content": "댓글임을 작성하지 않는다."},
+                {"role": "system", "content": "존댓말을 해서는 안된다. 반말로 문장을 만들어라."},
+                {"role": "system", "content": "줄바꿈 문자를 절대 사용하지 않는다. 큰 따옴표를 적지 않는다. 숫자로 문장을 시작하지 않는다."},
+                {"role": "system", "content": "문장 안에 숫자를 넣지 않는다."},
+                {"role": "system", "content": "You have to write down all the sentences in one line. Don't change the line"},
+                {"role": "system", "content": "act as a friend"},
+                {"role": "system", "content": "write in informal style"},
                 {"role": "user", "content": f"1. 게시글 내용: ${post_content}"},
             ],
-            temperature=0.8,
+            temperature=0.6,
             max_tokens=2048
         )
 
