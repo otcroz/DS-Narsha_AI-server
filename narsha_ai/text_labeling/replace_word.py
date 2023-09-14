@@ -1,5 +1,6 @@
 import re
 
+personal_list = []
 replace_words_dic = {
     "미친": "대박", "존나": "진짜", "놈": "사람", "년": "사람", "련": "사람", "급식충": "학생", "새끼": "사람",
     "새키": "사람", "애미": "엄마", "애비": "아빠", "한남": "한국 남자", "한녀": "한국 여자", "충": "집단", "계집": "여자",
@@ -34,16 +35,19 @@ def detect_personal_info(input):
     driver_pattern = r'\d{2}-\d{2}-\d{6}-\d{2}'
     credit_pattern = r'\d{4}[ ,-]\d{4}[ ,-]\d{4}[ ,-]\d{4}'
     phone_pattern = r'010[ ,-]\d{4}[ ,-]\d{4}'
-    email_pattern = r'([\w!-_\.]+)@([\w!-_\.]+)\.[\w]{2,3}'
+    email_pattern = r'[\w!-_\.]+@[\w!-_\.]+\.[\w]{2,3}'
 
     # check
-    personal_info.append(re.findall(national_id_pattern, input))
-    personal_info.append(re.findall(passport_pattern, input))
-    personal_info.append(re.findall(driver_pattern, input))
-    personal_info.append(re.findall(credit_pattern, input))
-    personal_info.append(re.findall(phone_pattern, input))
-    personal_info.append(re.findall(email_pattern, input))
+    list_to_string(re.findall(national_id_pattern, str(input)))
+    list_to_string(re.findall(passport_pattern, str(input)))
+    list_to_string(re.findall(driver_pattern, str(input)))
+    list_to_string(re.findall(credit_pattern, str(input)))
+    list_to_string(re.findall(phone_pattern, str(input)))
+    list_to_string(re.findall(email_pattern, str(input)))
 
-    print(personal_info)
+    return personal_list
 
-    return personal_info
+
+def list_to_string(list):
+    for item in list:
+        personal_list.append(item)
