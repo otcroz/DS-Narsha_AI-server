@@ -36,9 +36,19 @@ class LimeTextFiltering(Resource):
         text_count = cal_lime_text_count(preprocess)
 
         # lime
-        res = lime_exp(preprocess)
+        exp = lime_exp(preprocess)
 
-        return res
+        # filtering curse
+        if exp.available_labels()[0] == 0:  # contain curse is not
+            return True
+        else:  # contain curse
+            curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
+
+            # curse replace
+            res = replace_word.replace(curse_arr)
+            print(res)
+
+            return res
 
 
 def combi(n, r):
@@ -111,14 +121,4 @@ def lime_exp(input_data):
 
     # print("available_labels: ", exp.available_labels()[0])
 
-    # filtering curse
-    if exp.available_labels()[0] == 0:  # contain curse is not
-        return True
-    else:  # contain curse
-        curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
-
-        # curse replace
-        res = replace_word.replace(curse_arr)
-        print(res)
-
-        return res
+    return exp
