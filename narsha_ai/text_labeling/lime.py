@@ -57,10 +57,14 @@ class LimeTextFiltering(Resource):
             exp = lime_exp(preprocess)
             curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
 
-            # curse replace
-            for curse in curse_arr:
-                curse_res = replace_word.replace(curse)
-                res_object["curse"].append(curse_res)
+            # check to exist curse_arr or not
+            if len(curse_arr) == 0:
+                res_object["curse"].append({"문장": True})  # input sentence
+            else:
+                # curse replace
+                for curse in curse_arr:
+                    curse_res = replace_word.replace(curse)
+                    res_object["curse"].append(curse_res)
 
         else:
             res_object["curse"].append(None)
