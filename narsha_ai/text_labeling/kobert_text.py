@@ -36,7 +36,7 @@ def kobert_classify(input):
         out = test_model(token_ids.long(), valid_length, segment_ids.long())
         tensor_logits = out
         tensor_logits = tensor_logits.detach().numpy()
-        #print(np.argmax(tensor_logits))
+
         return np.argmax(tensor_logits)
 
 def kobert_classify_lime(input):
@@ -52,10 +52,7 @@ def kobert_classify_lime(input):
     for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
         out = test_model(token_ids.long(), valid_length, segment_ids.long())
         tensor_logits = out
-        #print('tensor_logits: ', tensor_logits)
         probas = F.sigmoid(tensor_logits).detach().numpy()  # tensor to numpy
-        #print('probas: ', probas)
-        # print('probas: ', probas.sha)
 
         return probas
 
