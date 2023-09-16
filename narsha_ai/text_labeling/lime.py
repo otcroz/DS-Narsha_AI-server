@@ -13,7 +13,7 @@ from flask_restx import Resource, Api, Namespace
 ## file ##
 from text_labeling import kobert_text
 from text_labeling import replace_word
-from text_labeling import preprocessing
+from text_labeling import preprocess
 
 max_len = 64
 batch_size = 64
@@ -31,7 +31,7 @@ class LimeTextFiltering(Resource):
 
         # preprocessing input
         input = request.get_json()
-        preprocess_result = preprocessing.preprocess_text(input)
+        preprocess_result = preprocess.preprocess_text(input)
 
         # clear
         res_arr['input'].clear()
