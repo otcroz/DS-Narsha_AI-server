@@ -23,7 +23,7 @@ res_arr = {"input": [], "result": []}
 TextFiltering = Namespace('TextFiltering')
 
 
-@TextFiltering.route('/curse-filter')
+@TextFiltering.route('/text-filter')
 class LimeTextFiltering(Resource):
     def post(self):
         global text_count
