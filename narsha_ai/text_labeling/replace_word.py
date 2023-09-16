@@ -11,19 +11,14 @@ replace_words_dic = {
 
 def replace(input):
     # replace words
-    # res = [{key: value} for key, value in replace_words_dic.items() for word in input if word.find(key) != -1]
+    # res = [{key: value} for key, value in replace_words_dic.items() if word.find(key) != -1]
 
-    res = []
-    for word in input:
-        for key, value in replace_words_dic.items():
-            if word.find(key) != -1:
-                res.append({word: value})
-                break
-            else:
-                res.append({word: None})
-                break
+    for key, value in replace_words_dic.items():
+        if input.find(key) != -1:
+            return {input: value}
 
-    return res
+        else:
+            return {input: None}
 
 
 def detect_personal_info(input):
