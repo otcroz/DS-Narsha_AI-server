@@ -31,11 +31,17 @@ class LimeTextFiltering(Resource):
 
         # preprocessing input
         input = request.get_json()
-        preprocess_result = preprocess.preprocess_text(input)
+        split_sentence = input['input'].split('. ')  # split sentence
+        # print("split_sentence: ", split_sentence)
+
+        preprocess_result = preprocess.preprocess_text(split_sentence)
+
 
         # clear
         res_arr['input'].clear()
         res_arr['result'].clear()
+
+        res_arr['input'] = split_sentence
 
         # start repeat(for)
         for res in preprocess_result:
