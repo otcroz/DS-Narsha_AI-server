@@ -4,6 +4,12 @@ import gluonnlp as nlp
 from transformers import BertModel
 from torch.utils.data import Dataset
 import numpy as np
+from kobert_tokenizer import KoBERTTokenizer
+from tqdm import tqdm, tqdm_notebook
+import torch.nn.functional as F
+
+max_len = 64
+batch_size = 64
 
 def load_pretrain_bert():
     bertmodel = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False)
@@ -11,6 +17,47 @@ def load_pretrain_bert():
     test_model.load_state_dict(torch.load('./models/bert_model_parameter.pt', map_location=torch.device('cpu')))
 
     return test_model
+
+
+def kobert_classify(input):
+    check_data = [input, '0']
+    check_data_another = [check_data]
+
+    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
+    vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
+
+    another_test = BERTDataset(check_data_another, 0, 1, tokenizer, vocab, max_len, True, False)
+    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=64, num_workers=4)
+
+    test_model = load_pretrain_bert()
+
+    test_model.eval()
+    for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
+        out = test_model(token_ids.long(), valid_length, segment_ids.long())
+        tensor_logits = out
+        tensor_logits = tensor_logits.detach().numpy()
+        #print(np.argmax(tensor_logits))
+        return np.argmax(tensor_logits)
+
+def kobert_classify_lime(input):
+    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
+    vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
+
+    another_test = BERTDataset(input, 0, 1, tokenizer, vocab, max_len, True, False)
+    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=64, num_workers=4)
+
+    test_model = load_pretrain_bert()
+
+    test_model.eval()
+    for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
+        out = test_model(token_ids.long(), valid_length, segment_ids.long())
+        tensor_logits = out
+        #print('tensor_logits: ', tensor_logits)
+        probas = F.sigmoid(tensor_logits).detach().numpy()  # tensor to numpy
+        #print('probas: ', probas)
+        # print('probas: ', probas.sha)
+
+        return probas
 
 
 class BERTClassifier(nn.Module):
