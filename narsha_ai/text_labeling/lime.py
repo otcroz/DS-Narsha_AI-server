@@ -36,12 +36,15 @@ class LimeTextFiltering(Resource):
 
         preprocess_result = preprocess.preprocess_text(split_sentence)
 
-
-        # clear
+        # clear result object
         res_arr['input'].clear()
         res_arr['result'].clear()
 
-        res_arr['input'] = split_sentence
+        for i in range(0, len(split_sentence)):
+            if i == len(split_sentence)-1:
+                res_arr['input'].append(split_sentence[i])
+            else:
+                res_arr['input'].append(split_sentence[i] + ".")
 
         # start repeat(for)
         for res in preprocess_result:
@@ -52,23 +55,35 @@ class LimeTextFiltering(Resource):
 
             # 1. check sentence through koBERT
             classify_res = kobert_text.kobert_classify(res)
+            # print(classify_res)
 
             if classify_res != 0:
-                # set text count
-                text_count = cal_lime_text_count(res)
+                # split to word unit
+                res_temp = res.split(' ')
+                print(res_temp)
+                while '' in res_temp:
+                    res_temp.remove('')
 
-                # lime: check curse sentence
-                exp = lime_exp(res)
-                curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
-
-                # check to exist curse_arr or not
-                if len(curse_arr) == 0:
-                    res_object["curse"].append({"문장": True})  # input sentence
+                if len(res_temp) == 1:  # if word count is 1, except LIME
+                    curse_res = replace_word.replace(res_temp[0])
+                    res_object["curse"].append(curse_res)
+                    # print(res_object)
                 else:
-                    # curse replace
-                    for curse in curse_arr:
-                        curse_res = replace_word.replace(curse)
-                        res_object["curse"].append(curse_res)
+                    # set text count
+                    text_count = cal_lime_text_count(res)
+
+                    # lime: check curse sentence
+                    exp = lime_exp(res)
+                    curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
+
+                    # check to exist curse_arr or not
+                    if len(curse_arr) == 0:
+                        res_object["curse"].append({"문장": True})  # input sentence
+                    else:
+                        # curse replace
+                        for curse in curse_arr:
+                            curse_res = replace_word.replace(curse)
+                            res_object["curse"].append(curse_res)
 
             else:
                 res_object["curse"].append(None)
@@ -76,7 +91,6 @@ class LimeTextFiltering(Resource):
 
             # 2. check personal info
             personal_res = replace_word.detect_personal_info(input)
-            print(personal_res)
 
             if len(personal_res) != 0:
                 for item in personal_res:
@@ -85,7 +99,7 @@ class LimeTextFiltering(Resource):
                 res_object["personal"].append(None)
 
             # 3. check curse and personal
-            if len(res_object["personal"]) == 0 and len(res_object["personal"]) == 0:
+            if res_object["curse"][0] is None and res_object["personal"][0] is None:
                 res_arr["result"].append(True)
             else:
                 res_arr["result"].append(res_object)
