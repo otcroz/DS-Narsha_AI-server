@@ -17,7 +17,7 @@ from text_labeling import replace_word
 max_len = 64
 batch_size = 64
 text_count = 0
-res_arr = {}
+res_arr = {"input": [], "result": []}
 
 TextFiltering = Namespace('TextFiltering')
 
@@ -26,29 +26,64 @@ TextFiltering = Namespace('TextFiltering')
 class LimeTextFiltering(Resource):
     def post(self):
         global text_count
+        global res_arr
 
         input = request.get_json()
+
+        # clear
+        res_arr['input'].clear()
+        res_arr['result'].clear()
 
         # preprocessing input
         preprocess = re.sub(r'[^ㄱ-ㅎㅏ-ㅣ가-힣 ]', "", input['input'])
 
-        # set text count
-        text_count = cal_lime_text_count(preprocess)
+        print(preprocess)
 
-        # lime
-        exp = lime_exp(preprocess)
+        # start repeat(for)
 
-        # filtering curse
-        if exp.available_labels()[0] == 0:  # contain curse is not
-            return True
-        else:  # contain curse
+        res_object = {
+            "curse": [],
+            "personal": [],
+        }
+
+        # 1. check sentence through koBERT
+        classify_res = kobert_text.kobert_classify(preprocess)
+
+        if classify_res != 0:
+            # set text count
+            text_count = cal_lime_text_count(preprocess)
+
+            # lime: check curse sentence
+            exp = lime_exp(preprocess)
             curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
 
             # curse replace
-            res = replace_word.replace(curse_arr)
-            print(res)
+            for curse in curse_arr:
+                curse_res = replace_word.replace(curse)
+                res_object["curse"].append(curse_res)
 
-            return res
+        else:
+            res_object["curse"].append(None)
+        print(res_object)
+
+        # 2. check personal info
+        personal_res = replace_word.detect_personal_info(input)
+        print(personal_res)
+
+        if len(personal_res) != 0:
+            for item in personal_res:
+                res_object["personal"].append(item)
+        else:
+            res_object["personal"].append(None)
+
+        # 3. check curse and personal
+        if len(res_object["personal"]) == 0 and len(res_object["personal"]) == 0:
+            res_arr["result"].append(True)
+        else:
+            res_arr["result"].append(res_object)
+
+        return res_arr
+
 
 
 def combi(n, r):
@@ -89,23 +124,9 @@ def predict(text):
     print(input_another)
     print(len(input_another))
 
-    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
-    vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
+    probas = kobert_text.kobert_classify_lime(input_another)
 
-    another_test = kobert_text.BERTDataset(input_another, 0, 1, tokenizer, vocab, max_len, True, False)
-    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=64, num_workers=4)
-
-    test_model = kobert_text.load_pretrain_bert()
-
-    for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
-        out = test_model(token_ids.long(), valid_length, segment_ids.long())
-        tensor_logits = out
-        # print('tensor_logits: ', tensor_logits)
-        probas = F.sigmoid(tensor_logits).detach().numpy()  # tensor to numpy
-        # print('probas: ', probas)
-        # print('probas: ', probas.shape)
-
-        return probas
+    return probas
 
 
 def lime_exp(input_data):
