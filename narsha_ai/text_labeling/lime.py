@@ -36,6 +36,14 @@ class LimeTextFiltering(Resource):
 
         preprocess_result = preprocess.preprocess_text(split_sentence)
 
+        # delete blank item
+        personal_sentence = []
+        for item in split_sentence:
+            if len(item) == 0:
+                continue
+            personal_sentence.append(item)
+        # print(personal_sentence)
+
         # clear result object
         res_arr['input'].clear()
         res_arr['result'].clear()
@@ -47,7 +55,8 @@ class LimeTextFiltering(Resource):
                 res_arr['input'].append(split_sentence[i] + ".")
 
         # start repeat(for)
-        for res in preprocess_result:
+        for idx, res in enumerate(preprocess_result):
+
             res_object = {
                 "curse": [],
                 "personal": [],
@@ -60,7 +69,7 @@ class LimeTextFiltering(Resource):
             if classify_res != 0:
                 # split to word unit
                 res_temp = res.split(' ')
-                print(res_temp)
+                # print(res_temp)
                 while '' in res_temp:
                     res_temp.remove('')
 
@@ -69,9 +78,6 @@ class LimeTextFiltering(Resource):
                     res_object["curse"].append(curse_res)
                     # print(res_object)
                 else:
-                    # set text count
-                    text_count = cal_lime_text_count(res)
-
                     # lime: check curse sentence
                     exp = lime_exp(res)
                     curse_arr = [arr[0] for arr in exp.as_list(label=1) if arr[1] > 0.1]
@@ -87,10 +93,9 @@ class LimeTextFiltering(Resource):
 
             else:
                 res_object["curse"].append(None)
-            print(res_object)
 
             # 2. check personal info
-            personal_res = replace_word.detect_personal_info(input)
+            personal_res = replace_word.detect_personal_info(personal_sentence[idx])
 
             if len(personal_res) != 0:
                 for item in personal_res:
@@ -99,6 +104,7 @@ class LimeTextFiltering(Resource):
                 res_object["personal"].append(None)
 
             # 3. check curse and personal
+            # print(res_object)
             if res_object["curse"][0] is None and res_object["personal"][0] is None:
                 res_arr["result"].append(True)
             else:
@@ -126,8 +132,8 @@ def cal_lime_text_count(text):
 
     count += count
 
-    if count < 64:
-        count = 64
+    if count < 32:
+        count = 32
     elif count > 1000:
         count = 1000
 
@@ -142,10 +148,10 @@ def predict(text):
     input_another = []
     for i in range(0, len(text)):
         input_another.append([text[i], '0'])
-    print(input_another)
-    print(len(input_another))
+    # print(input_another)
+    # print(len(input_another))
 
-    probas = kobert_text.kobert_classify_lime(input_another)
+    probas = kobert_text.kobert_classify_lime(input_another, text_count)
 
     return probas
 
@@ -154,9 +160,12 @@ def lime_exp(input_data):
     global text_count
     global res_arr
 
+    # set text count
+    text_count = cal_lime_text_count(input_data)
+
     explainer = LimeTextExplainer(class_names=['positive', 'negative'])
 
-    exp = explainer.explain_instance(input_data, predict, num_samples=64, top_labels=1)
+    exp = explainer.explain_instance(input_data, predict, num_samples=text_count, top_labels=1)
 
     # save to lime result
     # exp.save_to_file('./res/data.html')

@@ -30,6 +30,7 @@ def detect_personal_info(input):
     driver_pattern = r'\d{2}-\d{2}-\d{6}-\d{2}'
     credit_pattern = r'\d{4}[ ,-]\d{4}[ ,-]\d{4}[ ,-]\d{4}'
     phone_pattern = r'010[ ,-]\d{4}[ ,-]\d{4}'
+    home_telphone_pattern = r'02[ ,-]\d{3}[ ,-]\d{4}'
     email_pattern = r'[\w!-_\.]+@[\w!-_\.]+\.[\w]{2,3}'
 
     # check
@@ -38,6 +39,7 @@ def detect_personal_info(input):
     list_to_string(re.findall(driver_pattern, str(input)))
     list_to_string(re.findall(credit_pattern, str(input)))
     list_to_string(re.findall(phone_pattern, str(input)))
+    list_to_string(re.findall(home_telphone_pattern, str(input)))
     list_to_string(re.findall(email_pattern, str(input)))
 
     return personal_list
