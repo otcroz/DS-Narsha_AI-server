@@ -42,7 +42,7 @@ class LimeTextFiltering(Resource):
             if len(item) == 0:
                 continue
             personal_sentence.append(item)
-        print(personal_sentence)
+        # print(personal_sentence)
 
         # clear result object
         res_arr['input'].clear()
@@ -56,7 +56,7 @@ class LimeTextFiltering(Resource):
 
         # start repeat(for)
         for idx, res in enumerate(preprocess_result):
-            print(res)
+
             res_object = {
                 "curse": [],
                 "personal": [],
@@ -64,12 +64,12 @@ class LimeTextFiltering(Resource):
 
             # 1. check sentence through koBERT
             classify_res = kobert_text.kobert_classify(res)
-            print(classify_res)
+            # print(classify_res)
 
             if classify_res != 0:
                 # split to word unit
                 res_temp = res.split(' ')
-                print(res_temp)
+                # print(res_temp)
                 while '' in res_temp:
                     res_temp.remove('')
 
@@ -104,7 +104,7 @@ class LimeTextFiltering(Resource):
                 res_object["personal"].append(None)
 
             # 3. check curse and personal
-            print(res_object)
+            # print(res_object)
             if res_object["curse"][0] is None and res_object["personal"][0] is None:
                 res_arr["result"].append(True)
             else:
@@ -148,8 +148,8 @@ def predict(text):
     input_another = []
     for i in range(0, len(text)):
         input_another.append([text[i], '0'])
-    print(input_another)
-    print(len(input_another))
+    # print(input_another)
+    # print(len(input_another))
 
     probas = kobert_text.kobert_classify_lime(input_another, text_count)
 
