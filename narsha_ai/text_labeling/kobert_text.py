@@ -39,12 +39,12 @@ def kobert_classify(input):
 
         return np.argmax(tensor_logits)
 
-def kobert_classify_lime(input):
+def kobert_classify_lime(input, text_count):
     tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
     vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
 
     another_test = BERTDataset(input, 0, 1, tokenizer, vocab, max_len, True, False)
-    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=64, num_workers=4)
+    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=text_count, num_workers=4)
 
     test_model = load_pretrain_bert()
 
