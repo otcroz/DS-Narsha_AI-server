@@ -15,10 +15,9 @@ def replace(input):
 
     for key, value in replace_words_dic.items():
         if input.find(key) != -1:
-            return {input: value}
+            return value
 
-        else:
-            return {input: None}
+    return None
 
 
 def detect_personal_info(input):
