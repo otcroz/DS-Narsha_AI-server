@@ -70,7 +70,7 @@ class LimeTextFiltering(Resource):
 
                 if len(res_temp) == 1:  # if word count is 1, except LIME
                     curse_res = replace_word.replace(res_temp[0])
-                    curse_res_arr[res_temp] = curse_res
+                    curse_res_arr[res_temp[0]] = curse_res
                 else:
                     # lime: check curse sentence
                     exp = lime_exp(res)
