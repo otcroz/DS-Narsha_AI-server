@@ -4,6 +4,12 @@ import gluonnlp as nlp
 from transformers import BertModel
 from torch.utils.data import Dataset
 import numpy as np
+from kobert_tokenizer import KoBERTTokenizer
+from tqdm import tqdm, tqdm_notebook
+import torch.nn.functional as F
+
+max_len = 64
+batch_size = 64
 
 def load_pretrain_bert():
     bertmodel = BertModel.from_pretrained('skt/kobert-base-v1', return_dict=False)
@@ -11,6 +17,44 @@ def load_pretrain_bert():
     test_model.load_state_dict(torch.load('./models/bert_model_parameter.pt', map_location=torch.device('cpu')))
 
     return test_model
+
+
+def kobert_classify(input):
+    check_data = [input, '0']
+    check_data_another = [check_data]
+
+    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
+    vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
+
+    another_test = BERTDataset(check_data_another, 0, 1, tokenizer, vocab, max_len, True, False)
+    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=64, num_workers=4)
+
+    test_model = load_pretrain_bert()
+
+    test_model.eval()
+    for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
+        out = test_model(token_ids.long(), valid_length, segment_ids.long())
+        tensor_logits = out
+        tensor_logits = tensor_logits.detach().numpy()
+
+        return np.argmax(tensor_logits)
+
+def kobert_classify_lime(input, text_count):
+    tokenizer = KoBERTTokenizer.from_pretrained('skt/kobert-base-v1')
+    vocab = nlp.vocab.BERTVocab.from_sentencepiece(tokenizer.vocab_file, padding_token='[PAD]')
+
+    another_test = BERTDataset(input, 0, 1, tokenizer, vocab, max_len, True, False)
+    input_dataloder = torch.utils.data.DataLoader(another_test, batch_size=text_count, num_workers=4)
+
+    test_model = load_pretrain_bert()
+
+    test_model.eval()
+    for batch_id, (token_ids, valid_length, segment_ids, label) in enumerate(tqdm_notebook(input_dataloder)):
+        out = test_model(token_ids.long(), valid_length, segment_ids.long())
+        tensor_logits = out
+        probas = F.sigmoid(tensor_logits).detach().numpy()  # tensor to numpy
+
+        return probas
 
 
 class BERTClassifier(nn.Module):
@@ -47,8 +91,6 @@ class BERTDataset(Dataset):
     def __init__(self, dataset, sent_idx, label_idx, bert_tokenizer, vocab, max_len,
                  pad, pair):
         transform = BERTSentenceTransform(bert_tokenizer, max_seq_length=max_len,vocab=vocab, pad=pad, pair=pair)
-        # transform = nlp.data.BERTSentenceTransform(
-        #     bert_tokenizer, max_seq_length=max_len, pad=pad, pair=pair)
 
         self.sentences = [transform([i[sent_idx]]) for i in dataset]
         self.labels = [np.int32(i[label_idx]) for i in dataset]
@@ -61,20 +103,6 @@ class BERTDataset(Dataset):
 
 
 class BERTSentenceTransform:
-    r"""BERT style data transformation.
-
-    Parameters
-    ----------
-    tokenizer : BERTTokenizer.
-        Tokenizer for the sentences.
-    max_seq_length : int.
-        Maximum sequence length of the sentences.
-    pad : bool, default True
-        Whether to pad the sentences to maximum length.
-    pair : bool, default True
-        Whether to transform sentences or sentence pairs.
-    """
-
     def __init__(self, tokenizer, max_seq_length,vocab, pad=True, pair=True):
         self._tokenizer = tokenizer
         self._max_seq_length = max_seq_length
@@ -83,56 +111,6 @@ class BERTSentenceTransform:
         self._vocab = vocab
 
     def __call__(self, line):
-        """Perform transformation for sequence pairs or single sequences.
-
-        The transformation is processed in the following steps:
-        - tokenize the input sequences
-        - insert [CLS], [SEP] as necessary
-        - generate type ids to indicate whether a token belongs to the first
-        sequence or the second sequence.
-        - generate valid length
-
-        For sequence pairs, the input is a tuple of 2 strings:
-        text_a, text_b.
-
-        Inputs:
-            text_a: 'is this jacksonville ?'
-            text_b: 'no it is not'
-        Tokenization:
-            text_a: 'is this jack ##son ##ville ?'
-            text_b: 'no it is not .'
-        Processed:
-            tokens: '[CLS] is this jack ##son ##ville ? [SEP] no it is not . [SEP]'
-            type_ids: 0     0  0    0    0     0       0 0     1  1  1  1   1 1
-            valid_length: 14
-
-        For single sequences, the input is a tuple of single string:
-        text_a.
-
-        Inputs:
-            text_a: 'the dog is hairy .'
-        Tokenization:
-            text_a: 'the dog is hairy .'
-        Processed:
-            text_a: '[CLS] the dog is hairy . [SEP]'
-            type_ids: 0     0   0   0  0     0 0
-            valid_length: 7
-
-        Parameters
-        ----------
-        line: tuple of str
-            Input strings. For sequence pairs, the input is a tuple of 2 strings:
-            (text_a, text_b). For single sequences, the input is a tuple of single
-            string: (text_a,).
-
-        Returns
-        -------
-        np.array: input token ids in 'int32', shape (batch_size, seq_length)
-        np.array: valid length in 'int32', shape (batch_size,)
-        np.array: input token type ids in 'int32', shape (batch_size, seq_length)
-
-        """
-
         # convert to unicode
         text_a = line[0]
         if self._pair:
@@ -146,26 +124,12 @@ class BERTSentenceTransform:
             tokens_b = self._tokenizer(text_b)
 
         if tokens_b:
-            # Modifies `tokens_a` and `tokens_b` in place so that the total
-            # length is less than the specified length.
-            # Account for [CLS], [SEP], [SEP] with "- 3"
             self._truncate_seq_pair(tokens_a, tokens_b,
                                     self._max_seq_length - 3)
         else:
-            # Account for [CLS] and [SEP] with "- 2"
             if len(tokens_a) > self._max_seq_length - 2:
                 tokens_a = tokens_a[0:(self._max_seq_length - 2)]
 
-        # The embedding vectors for `type=0` and `type=1` were learned during
-        # pre-training and are added to the wordpiece embedding vector
-        # (and position vector). This is not *strictly* necessary since
-        # the [SEP] token unambiguously separates the sequences, but it makes
-        # it easier for the model to learn the concept of sequences.
-
-        # For classification tasks, the first vector (corresponding to [CLS]) is
-        # used as as the "sentence vector". Note that this only makes sense because
-        # the entire model is fine-tuned.
-        #vocab = self._tokenizer.vocab
         vocab = self._vocab
         tokens = []
         tokens.append(vocab.cls_token)
