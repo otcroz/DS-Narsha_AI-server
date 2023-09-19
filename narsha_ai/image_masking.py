@@ -13,8 +13,8 @@ import os
 ImageMasking = Namespace('ImageMasking')
 models = {} # yolov5 models
 convert_image_arr = [] # binary to image
-detect_results_arr = {'result': [], 'size': []} # results
-masking_results_arr = {'result': [], 'image': []}
+# detect_results_arr = {'result': [], 'size': []}  # results
+masking_results_arr = {'result': [], 'size': [], 'image': []}
 
 # setting
 def yolov5_model():
@@ -63,6 +63,7 @@ class ObjectDetect(Resource):
             masking_results_arr.clear()
             masking_results_arr['result'] = []
             masking_results_arr['image'] = []
+            masking_results_arr['size'] = []
 
             print(return_arr)
 
@@ -85,7 +86,9 @@ def detect_and_apply_mask(model, images):
             # detect_results_arr['result'].append(result) # add result in list
             # detect_results_arr['size'].append(im.size)  # add result in size
 
+
             masking_results_arr['result'].append(result)
+            masking_results_arr['size'].append(im.size)  # add result in size
 
             if result:
                 # 첫 이미지 설정
