@@ -23,7 +23,6 @@ res_arr = {"input": [], "result": {}}
 
 TextFiltering = Namespace('TextFiltering')
 
-
 @TextFiltering.route('/text-filter')
 class LimeTextFiltering(Resource):
     def post(self):
