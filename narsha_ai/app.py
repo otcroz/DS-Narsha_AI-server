@@ -65,6 +65,9 @@ if __name__ == '__main__' :
     # load yolov5m model
     yolov5_model()
 
+    # initialize bert model
+    kobert_text.load_pretrain_bert()
+
     app.run(host='127.0.0.1', port=8000)
 
 
