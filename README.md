@@ -1,0 +1,2 @@
+ - 2023년 ICT멘토링 한이음 공모전 출품작
+ - [2023년 ACK 추계학술대회 논문 등재 C2023B0226](https://github.com/otcroz/DS-Narsha_AI-server/blob/main/ACK2023_KIPS_C2023B0226_%EC%B5%9C%EC%A2%85.pdf)
